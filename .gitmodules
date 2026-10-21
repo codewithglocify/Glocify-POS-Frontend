@@ -1,0 +1,3 @@
+[submodule "Core-POS-Documentation"]
+	path = Core-POS-Documentation
+	url = https://github.com/codewithglocify/Core-POS-Documentation
