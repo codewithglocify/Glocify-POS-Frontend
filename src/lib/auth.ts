@@ -25,11 +25,15 @@ export class AuthError extends Error {
   }
 }
 
+export function isAuthenticated(): boolean {
+  return getSession() !== null
+}
+
 export async function login({
   email,
   password,
 }: LoginCredentials): Promise<AuthSession> {
-  const response = await fetch(`${env.apiBaseUrl}/v1/authorization/login`, {
+  const response = await fetch(`${env.apiBaseUrl}/admin/v1/session/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -38,12 +42,16 @@ export async function login({
     body: JSON.stringify({
       organizationId: env.organizationId,
       email,
-      pin: password,
+      password,
     }),
   })
 
   if (response.status === 401) {
     throw new AuthError('Invalid email or password', 401)
+  }
+
+  if (response.status === 403) {
+    throw new AuthError('This account is not allowed to access the admin console', 403)
   }
 
   if (!response.ok) {
@@ -73,6 +81,27 @@ export async function login({
   return session
 }
 
+export async function logout(): Promise<void> {
+  const session = getSession()
+  if (!session) {
+    return
+  }
+
+  try {
+    await fetch(`${env.apiBaseUrl}/admin/v1/session/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify({ refreshToken: session.refreshToken }),
+    })
+  } finally {
+    clearSession()
+  }
+}
+
 export function saveSession(session: AuthSession): void {
   localStorage.setItem(ACCESS_TOKEN_KEY, session.accessToken)
   localStorage.setItem(REFRESH_TOKEN_KEY, session.refreshToken)
@@ -80,6 +109,10 @@ export function saveSession(session: AuthSession): void {
 }
 
 export function getSession(): AuthSession | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
   const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY)
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
   const expiresInRaw = localStorage.getItem(EXPIRES_IN_KEY)
@@ -100,4 +133,8 @@ export function clearSession(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(REFRESH_TOKEN_KEY)
   localStorage.removeItem(EXPIRES_IN_KEY)
+}
+
+export function getAccessToken(): string | null {
+  return getSession()?.accessToken ?? null
 }

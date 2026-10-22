@@ -6,8 +6,6 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import Footer from '../components/Footer'
-import Header from '../components/Header'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
@@ -34,7 +32,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Core POS Admin',
       },
     ],
     links: [
@@ -50,21 +48,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function NotFound() {
   return (
-    <main className="page-wrap px-4 pb-8 pt-14">
-      <section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 sm:py-14">
-        <p className="island-kicker mb-3">404</p>
-        <h1 className="display-title mb-5 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-[var(--sea-ink)] sm:text-6xl">
-          Page not found
-        </h1>
-        <p className="mb-8 max-w-2xl text-base text-[var(--sea-ink-soft)] sm:text-lg">
-          The page you are looking for does not exist or may have been moved.
-        </p>
-        <Link
-          to="/"
-          className="inline-flex rounded-full border border-[rgba(50,143,151,0.3)] bg-[rgba(79,184,178,0.14)] px-5 py-2.5 text-sm font-semibold text-[var(--lagoon-deep)] no-underline transition hover:-translate-y-0.5 hover:bg-[rgba(79,184,178,0.24)]"
-        >
-          Go home
-        </Link>
+    <main className="page">
+      <section className="panel">
+        <div className="panel-b stack">
+          <p className="eyebrow">404</p>
+          <h1>Page not found</h1>
+          <p className="muted">
+            The page you are looking for does not exist or may have been moved.
+          </p>
+          <div>
+            <Link to="/hierarchy" className="btn primary">
+              Go to Hierarchy
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   )
@@ -77,10 +74,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
-        <Header />
+      <body>
         {children}
-        <Footer />
         <TanStackDevtools
           config={{
             position: 'bottom-right',

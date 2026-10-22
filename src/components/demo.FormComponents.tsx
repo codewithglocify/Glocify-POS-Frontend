@@ -3,8 +3,6 @@ import { useStore } from '@tanstack/react-form'
 
 import { useFieldContext, useFormContext } from '#/hooks/demo.form-context'
 
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
 import { Textarea as ShadcnTextarea } from '#/components/ui/textarea'
 import * as ShadcnSelect from '#/components/ui/select'
 import { Slider as ShadcnSlider } from '#/components/ui/slider'
@@ -16,9 +14,9 @@ export function SubscribeButton({ label }: { label: string }) {
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
       {(isSubmitting) => (
-        <Button type="submit" disabled={isSubmitting}>
-          {label}
-        </Button>
+        <button type="submit" className="btn primary" disabled={isSubmitting}>
+          {isSubmitting ? 'Working…' : label}
+        </button>
       )}
     </form.Subscribe>
   )
@@ -34,7 +32,8 @@ function ErrorMessages({
       {errors.map((error) => (
         <div
           key={typeof error === 'string' ? error : error.message}
-          className="mt-1 text-sm font-semibold text-red-600"
+          className="mt-1 text-sm font-semibold"
+          style={{ color: 'var(--bad)' }}
         >
           {typeof error === 'string' ? error : error.message}
         </div>
@@ -59,15 +58,11 @@ export function TextField({
   const inputId = label.toLowerCase().replace(/\s+/g, '-')
 
   return (
-    <div>
-      <Label
-        htmlFor={inputId}
-        className="mb-2 text-sm font-semibold text-[var(--sea-ink)]"
-      >
-        {label}
-      </Label>
-      <Input
+    <div className="field">
+      <label htmlFor={inputId}>{label}</label>
+      <input
         id={inputId}
+        className="input"
         type={type}
         autoComplete={autoComplete}
         value={field.state.value}
