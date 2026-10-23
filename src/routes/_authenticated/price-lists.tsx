@@ -1,158 +1,150 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import * as React from 'react';
 
-import { useScope } from '#/components/layout/scope-context'
-import SearchSelect from '#/components/SearchSelect'
-import { CloseIcon, HierarchyIcon, PlayIcon, PlusIcon } from '#/icons'
-import { ApiError } from '#/lib/api/client'
-import { listMasterCurrencies } from '#/lib/api/currencies'
-import {
-  createPriceList,
-  listPriceListItems,
-  listPriceLists,
-} from '#/lib/api/price-lists'
-import type { Currency, PriceList, PriceListItem } from '#/lib/api/types'
-import { CONCEPTS, conceptLabel, matrixRows } from '#/lib/price-lists/matrix'
-import {
-  matchesScope,
-  priceListScope,
-  storeIdsByPriceList,
-} from '#/lib/price-lists/scope'
+import { useScope } from '#/components/layout/scope-context';
+import PriceListDetailDrawer from '#/components/price-lists/PriceListDetailDrawer';
+import SearchSelect from '#/components/SearchSelect';
+import { CloseIcon, HierarchyIcon, PlayIcon, PlusIcon } from '#/icons';
+import { ApiError } from '#/lib/api/client';
+import { listMasterCurrencies } from '#/lib/api/currencies';
+import { createPriceList, listPriceListItems, listPriceLists } from '#/lib/api/price-lists';
+import type { Currency, PriceList, PriceListItem } from '#/lib/api/types';
+import { CONCEPTS, conceptLabel, matrixRows } from '#/lib/price-lists/matrix';
+import { matchesScope, priceListScope, storeIdsByPriceList } from '#/lib/price-lists/scope';
 
 export const Route = createFileRoute('/_authenticated/price-lists')({
   component: PriceListsPage,
-})
+});
 
 function assignedLabel(list: PriceList): string {
-  const count = list.storePriceLists.length
+  const count = list.storePriceLists.length;
   if (count === 1) {
-    return '1 store'
+    return '1 store';
   }
   if (count > 1) {
-    return `${count} stores`
+    return `${count} stores`;
   }
-  return list.brand?.name ?? '—'
+  return list.brand?.name ?? '—';
 }
 
 function errorText(err: unknown, fallback: string): string {
   if (err instanceof ApiError || err instanceof Error) {
-    return err.message
+    return err.message;
   }
-  return fallback
+  return fallback;
 }
 
 function PriceListsPage() {
-  const navigate = useNavigate()
-  const scope = useScope()
-  const [priceLists, setPriceLists] = useState<Array<PriceList>>([])
-  const [items, setItems] = useState<Array<PriceListItem>>([])
-  const [variantId, setVariantId] = useState('')
-  const [currencies, setCurrencies] = useState<Array<Currency>>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [formError, setFormError] = useState<string | null>(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [code, setCode] = useState('')
-  const [currencyCode, setCurrencyCode] = useState('')
-  const [sourceSystem, setSourceSystem] = useState('POS')
-  const [brandId, setBrandId] = useState('')
-  const [countryId, setCountryId] = useState('')
-  const [concept, setConcept] = useState('')
+  const navigate = useNavigate();
+  const scope = useScope();
+  const [priceLists, setPriceLists] = React.useState<Array<PriceList>>([]);
+  const [items, setItems] = React.useState<Array<PriceListItem>>([]);
+  const [variantId, setVariantId] = React.useState('');
+  const [currencies, setCurrencies] = React.useState<Array<Currency>>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [code, setCode] = React.useState('');
+  const [currencyCode, setCurrencyCode] = React.useState('');
+  const [sourceSystem, setSourceSystem] = React.useState('POS');
+  const [brandId, setBrandId] = React.useState('');
+  const [countryId, setCountryId] = React.useState('');
+  const [concept, setConcept] = React.useState('');
+  const [detailId, setDetailId] = React.useState<string | null>(null);
+  const [detailVariantId, setDetailVariantId] = React.useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const [listsResult, itemsResult, currencyResult] =
-        await Promise.allSettled([
-          listPriceLists(),
-          listPriceListItems(),
-          listMasterCurrencies(),
-        ])
+      const [listsResult, itemsResult, currencyResult] = await Promise.allSettled([
+        listPriceLists(),
+        listPriceListItems(),
+        listMasterCurrencies(),
+      ]);
       const rejected = [listsResult, itemsResult, currencyResult].find(
-        (result) =>
-          result.status === 'rejected' &&
-          result.reason instanceof ApiError &&
-          result.reason.status === 401,
-      )
+        (result) => result.status === 'rejected' && result.reason instanceof ApiError && result.reason.status === 401,
+      );
       if (rejected?.status === 'rejected') {
-        throw rejected.reason
+        throw rejected.reason;
       }
       if (listsResult.status === 'rejected') {
-        throw listsResult.reason
+        throw listsResult.reason;
       }
       if (itemsResult.status === 'rejected') {
-        throw itemsResult.reason
+        throw itemsResult.reason;
       }
-      const nextItems = Array.isArray(itemsResult.value)
-        ? itemsResult.value
-        : []
-      setPriceLists(Array.isArray(listsResult.value) ? listsResult.value : [])
-      setItems(nextItems)
+      const nextItems = Array.isArray(itemsResult.value) ? itemsResult.value : [];
+      setPriceLists(Array.isArray(listsResult.value) ? listsResult.value : []);
+      setItems(nextItems);
       setVariantId((current) =>
-        nextItems.some((item) => item.variantId === current)
-          ? current
-          : (nextItems[0]?.variantId ?? ''),
-      )
-      if (
-        currencyResult.status === 'fulfilled' &&
-        Array.isArray(currencyResult.value)
-      ) {
-        setCurrencies(currencyResult.value)
+        nextItems.some((item) => item.variantId === current) ? current : (nextItems[0]?.variantId ?? ''),
+      );
+      if (currencyResult.status === 'fulfilled' && Array.isArray(currencyResult.value)) {
+        setCurrencies(currencyResult.value);
       } else {
-        setCurrencies([])
+        setCurrencies([]);
         setError(
           errorText(
             currencyResult.status === 'rejected' ? currencyResult.reason : null,
             'Currencies could not be loaded.',
           ),
-        )
+        );
       }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        await navigate({ to: '/login' })
-        return
+        await navigate({ to: '/login' });
+        return;
       }
-      setError(errorText(err, 'Failed to load price lists'))
+      setError(errorText(err, 'Failed to load price lists'));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [navigate])
+  }, [navigate]);
 
-  useEffect(() => {
-    void load()
-  }, [load])
+  React.useEffect(() => {
+    void load();
+  }, [load]);
 
   function openCreate() {
-    const scopedCountry = scope.country
-    setCode('')
-    setSourceSystem('POS')
-    setBrandId(scope.brand?.id ?? '')
-    setCountryId(scopedCountry?.id ?? '')
-    setCurrencyCode(scopedCountry?.defaultCurrencyCode ?? '')
-    setConcept('')
-    setFormError(null)
-    setDrawerOpen(true)
+    const scopedCountry = scope.country;
+    setCode('');
+    setSourceSystem('POS');
+    setBrandId(scope.brand?.id ?? '');
+    setCountryId(scopedCountry?.id ?? '');
+    setCurrencyCode(scopedCountry?.defaultCurrencyCode ?? '');
+    setConcept('');
+    setFormError(null);
+    setDetailId(null);
+    setDetailVariantId(null);
+    setDrawerOpen(true);
+  }
+
+  function openDetail(listId: string, focusVariantId: string | null) {
+    setDrawerOpen(false);
+    setDetailId(listId);
+    setDetailVariantId(focusVariantId);
   }
 
   function onCountryChange(nextCountryId: string) {
-    setCountryId(nextCountryId)
-    const country = scope.countries.find((item) => item.id === nextCountryId)
+    setCountryId(nextCountryId);
+    const country = scope.countries.find((item) => item.id === nextCountryId);
     if (country?.defaultCurrencyCode) {
-      setCurrencyCode(country.defaultCurrencyCode)
+      setCurrencyCode(country.defaultCurrencyCode);
     }
   }
 
   async function handleSave() {
-    const trimmedCode = code.trim()
-    const trimmedSource = sourceSystem.trim()
+    const trimmedCode = code.trim();
+    const trimmedSource = sourceSystem.trim();
     if (!trimmedCode || !currencyCode || !trimmedSource) {
-      return
+      return;
     }
 
-    setSaving(true)
-    setFormError(null)
+    setSaving(true);
+    setFormError(null);
     try {
       await createPriceList({
         code: trimmedCode,
@@ -161,37 +153,33 @@ function PriceListsPage() {
         ...(brandId ? { brandId } : {}),
         ...(countryId ? { countryId } : {}),
         ...(concept ? { concept } : {}),
-      })
-      setDrawerOpen(false)
-      await load()
+      });
+      setDrawerOpen(false);
+      await load();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        await navigate({ to: '/login' })
-        return
+        await navigate({ to: '/login' });
+        return;
       }
-      setFormError(errorText(err, 'Failed to create price list'))
+      setFormError(errorText(err, 'Failed to create price list'));
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
-  const variants = useMemo(() => {
-    const seen = new Map<string, string>()
+  const variants = React.useMemo(() => {
+    const seen = new Map<string, string>();
     for (const item of items) {
       if (!seen.has(item.variantId)) {
-        seen.set(
-          item.variantId,
-          `${item.variant.product.sapArticle} · ${item.variant.product.name}`,
-        )
+        seen.set(item.variantId, `${item.variant.product.sapArticle} · ${item.variant.product.name}`);
       }
     }
-    return [...seen.entries()].map(([id, label]) => ({ id, label }))
-  }, [items])
+    return [...seen.entries()].map(([id, label]) => ({ id, label }));
+  }, [items]);
 
-  const selectedVariant =
-    variants.find((variant) => variant.id === variantId) ?? null
+  const selectedVariant = variants.find((variant) => variant.id === variantId) ?? null;
 
-  const selectedScope = useMemo(
+  const selectedScope = React.useMemo(
     () => ({
       countryId: scope.country?.id ?? '',
       regionId: scope.region?.id ?? '',
@@ -199,21 +187,18 @@ function PriceListsPage() {
       storeId: scope.store?.id ?? '',
     }),
     [scope.brand, scope.country, scope.region, scope.store],
-  )
-  const visibleRows = useMemo(
+  );
+  const visibleRows = React.useMemo(
     () =>
-      matrixRows(items, variantId, storeIdsByPriceList(priceLists)).filter(
-        (row) => matchesScope(row, selectedScope),
-      ),
+      matrixRows(items, variantId, storeIdsByPriceList(priceLists)).filter((row) => matchesScope(row, selectedScope)),
     [items, priceLists, selectedScope, variantId],
-  )
-  const visibleLists = useMemo(
-    () =>
-      priceLists.filter((list) =>
-        matchesScope(priceListScope(list), selectedScope),
-      ),
+  );
+  const visibleLists = React.useMemo(
+    () => priceLists.filter((list) => matchesScope(priceListScope(list), selectedScope)),
     [priceLists, selectedScope],
-  )
+  );
+  const detailList = priceLists.find((list) => list.id === detailId) ?? null;
+  const detailItems = detailList ? items.filter((item) => item.priceListId === detailList.id) : [];
 
   return (
     <>
@@ -224,9 +209,8 @@ function PriceListsPage() {
           </div>
           <h1>Price lists</h1>
           <p>
-            Prices per country, currency and concept, assigned to store
-            clusters. Changes are staged with an effective date and activate at
-            midnight in each store&apos;s own time zone.
+            Prices per country, currency and concept, assigned to store clusters. Changes are staged with an effective
+            date and activate at midnight in each store&apos;s own time zone.
           </p>
           <div>
             <span className="scope-note">
@@ -256,9 +240,7 @@ function PriceListsPage() {
       <section className="panel">
         <div className="panel-h">
           <h2>Price matrix</h2>
-          <span className="sub">
-            {selectedVariant?.label ?? 'No priced variant'}
-          </span>
+          <span className="sub">{selectedVariant?.label ?? 'No priced variant'}</span>
           <div className="actions">
             <SearchSelect
               value={variantId}
@@ -302,7 +284,7 @@ function PriceListsPage() {
                 ) : null}
                 {!loading
                   ? visibleRows.map((row) => (
-                      <tr key={row.id}>
+                      <tr key={row.id} className="click" onClick={() => openDetail(row.id, variantId)}>
                         <td>
                           <span className="row" style={{ gap: 8 }}>
                             <span className="flag">{row.country}</span>
@@ -311,9 +293,7 @@ function PriceListsPage() {
                         </td>
                         <td>{row.concept}</td>
                         <td className="r mono">{row.listPrice}</td>
-                        <td className="r mono">
-                          {row.promoPrice ?? <span className="muted">—</span>}
-                        </td>
+                        <td className="r mono">{row.promoPrice ?? <span className="muted">—</span>}</td>
                         <td>
                           {row.nextChange ? (
                             <span className="badge warn">{row.nextChange}</span>
@@ -329,8 +309,7 @@ function PriceListsPage() {
             </table>
           </div>
           <div className="empty-note">
-            Store and corporate users see the same matrix, filtered by their
-            access scope.
+            Store and corporate users see the same matrix, filtered by their access scope.
           </div>
         </div>
       </section>
@@ -338,9 +317,7 @@ function PriceListsPage() {
       <section className="panel">
         <div className="panel-h">
           <h2>Price lists</h2>
-          <span className="sub">
-            {loading ? 'Loading…' : `${visibleLists.length} lists`}
-          </span>
+          <span className="sub">{loading ? 'Loading…' : `${visibleLists.length} lists`}</span>
         </div>
         <div className="panel-b flush">
           <div className="tbl-wrap">
@@ -372,7 +349,7 @@ function PriceListsPage() {
                 ) : null}
                 {!loading
                   ? visibleLists.map((list) => (
-                      <tr key={list.id}>
+                      <tr key={list.id} className="click" onClick={() => openDetail(list.id, null)}>
                         <td className="mono strong">{list.code}</td>
                         <td>{list.country?.isoCode ?? 'All'}</td>
                         <td className="mono">{list.currencyCode}</td>
@@ -387,6 +364,19 @@ function PriceListsPage() {
           </div>
         </div>
       </section>
+
+      {detailList ? (
+        <PriceListDetailDrawer
+          list={detailList}
+          items={detailItems}
+          stores={scope.stores}
+          focusVariantId={detailVariantId}
+          onClose={() => {
+            setDetailId(null);
+            setDetailVariantId(null);
+          }}
+        />
+      ) : null}
 
       {drawerOpen ? (
         <>
@@ -415,8 +405,8 @@ function PriceListsPage() {
             <form
               className="drawer-b"
               onSubmit={(event) => {
-                event.preventDefault()
-                void handleSave()
+                event.preventDefault();
+                void handleSave();
               }}
             >
               {formError ? (
@@ -459,9 +449,7 @@ function PriceListsPage() {
                   value={sourceSystem}
                   onChange={(event) => setSourceSystem(event.target.value)}
                 />
-                <span className="hint">
-                  POS for a list created in this console.
-                </span>
+                <span className="hint">POS for a list created in this console.</span>
               </div>
               <div className="field">
                 <label htmlFor="price-list-country">Country</label>
@@ -513,22 +501,13 @@ function PriceListsPage() {
               </div>
             </form>
             <div className="drawer-f">
-              <button
-                type="button"
-                className="btn"
-                onClick={() => setDrawerOpen(false)}
-              >
+              <button type="button" className="btn" onClick={() => setDrawerOpen(false)}>
                 Cancel
               </button>
               <button
                 type="button"
                 className="btn primary"
-                disabled={
-                  saving ||
-                  !code.trim() ||
-                  !currencyCode ||
-                  !sourceSystem.trim()
-                }
+                disabled={saving || !code.trim() || !currencyCode || !sourceSystem.trim()}
                 onClick={() => void handleSave()}
               >
                 {saving ? 'Saving…' : 'Create price list'}
@@ -538,5 +517,5 @@ function PriceListsPage() {
         </>
       ) : null}
     </>
-  )
+  );
 }

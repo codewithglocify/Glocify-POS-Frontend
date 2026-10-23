@@ -230,6 +230,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tbl tr:last-child td { border-bottom: 0; }
 .tbl tbody tr:hover td { background: var(--surface-2); }
 .tbl tr.click { cursor: pointer; }
+.tbl tbody tr.is-focus td { background: var(--accent-soft); }
+.detail-stores { display: grid; gap: 4px; }
 .sortbtn { all: unset; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; }
 .sortbtn:hover { color: var(--fg); }
 .sortbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
