@@ -24,6 +24,7 @@ import {
   listOrgRegions,
 } from '#/lib/api/regions'
 import { createStore, listStores } from '#/lib/api/stores'
+import { CloseIcon } from '#/icons'
 import { formatConcept } from '#/lib/format'
 import type { Brand, Country, Currency, Region, Store } from '#/lib/api/types'
 
@@ -561,7 +562,7 @@ function HierarchyPage() {
                     aria-label="Close"
                     onClick={() => setDrawer(null)}
                   >
-                    ×
+                    <CloseIcon />
                   </button>
                 </div>
                 <div className="drawer-b">
@@ -620,7 +621,7 @@ function HierarchyPage() {
                     aria-label="Close"
                     onClick={() => setDrawer(null)}
                   >
-                    ×
+                    <CloseIcon />
                   </button>
                 </div>
                 <div className="drawer-b">
@@ -685,7 +686,7 @@ function HierarchyPage() {
                     aria-label="Close"
                     onClick={() => setDrawer(null)}
                   >
-                    ×
+                    <CloseIcon />
                   </button>
                 </div>
                 <div className="drawer-b">
