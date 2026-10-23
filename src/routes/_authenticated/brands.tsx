@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
+import { CloseIcon } from '#/icons'
 import { createBrand, listBrands, updateBrand } from '#/lib/api/brands'
 import { ApiError } from '#/lib/api/client'
 import type { Brand } from '#/lib/api/types'
@@ -185,7 +186,7 @@ function BrandsPage() {
                 aria-label="Close"
                 onClick={() => setDrawerOpen(false)}
               >
-                ×
+                <CloseIcon />
               </button>
             </div>
             <div className="drawer-b">

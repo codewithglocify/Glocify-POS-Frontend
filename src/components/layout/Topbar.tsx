@@ -1,40 +1,96 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useEffect, useRef } from 'react'
 
 import ThemeToggle from '#/components/ThemeToggle'
-import { logout } from '#/lib/auth'
+import UserMenu from '#/components/layout/UserMenu'
+import { BellIcon, MenuIcon, SearchIcon } from '#/icons'
+
+const scopeFields = [
+  { label: 'Region', value: 'All regions' },
+  { label: 'Country', value: 'All countries' },
+  { label: 'Brand', value: 'All brands' },
+  { label: 'Store', value: 'All stores' },
+] as const
 
 export default function Topbar({
   onMenuClick,
+  sidebarOpen = true,
 }: {
   onMenuClick?: () => void
+  sidebarOpen?: boolean
 }) {
-  const navigate = useNavigate()
+  const searchRef = useRef<HTMLInputElement>(null)
 
-  async function handleLogout() {
-    await logout()
-    await navigate({ to: '/login' })
-  }
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
+        return
+      }
+
+      const target = event.target
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return
+      }
+
+      event.preventDefault()
+      searchRef.current?.focus()
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   return (
     <header className="topbar">
       <button
         type="button"
         className="iconbtn menu-btn"
-        aria-label="Open navigation"
+        aria-label={sidebarOpen ? 'Collapse navigation' : 'Expand navigation'}
+        aria-expanded={sidebarOpen}
         onClick={onMenuClick}
       >
-        ☰
+        <MenuIcon />
       </button>
 
+      <div className="scope">
+        <span className="lbl">Scope</span>
+        {scopeFields.map((field, index) => (
+          <span key={field.label} className="scope-field">
+            {index > 0 ? <span className="sep">›</span> : null}
+            <select aria-label={field.label} defaultValue={field.value}>
+              <option value={field.value}>{field.value}</option>
+            </select>
+          </span>
+        ))}
+      </div>
+
+      <form
+        className="search"
+        role="search"
+        onSubmit={(event) => event.preventDefault()}
+      >
+        <SearchIcon />
+        <input
+          ref={searchRef}
+          type="text"
+          placeholder="Jump to a store, module or setting"
+          aria-label="Jump to a store, module or setting"
+        />
+        <kbd>/</kbd>
+      </form>
+
       <div className="top-right">
-        <span className="env">ADMIN</span>
-        <ThemeToggle />
-        <button type="button" className="btn sm" onClick={() => void handleLogout()}>
-          Sign out
+        <span className="env">PROD</span>
+        <button type="button" className="iconbtn" aria-label="Notifications">
+          <BellIcon />
+          <span className="dot" />
         </button>
-        <div className="avatar" aria-hidden>
-          CA
-        </div>
+        <ThemeToggle />
+        <UserMenu />
       </div>
     </header>
   )
