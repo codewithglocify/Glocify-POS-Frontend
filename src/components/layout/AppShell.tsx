@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { ScopeProvider } from '#/components/layout/scope-context'
 import Sidebar from '#/components/layout/Sidebar'
 import Topbar from '#/components/layout/Topbar'
 
@@ -22,24 +23,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={`app${sidebarOpen ? ' sidebar-open' : ''}`}>
-      <Sidebar onNavigate={closeIfOverlay} />
-      <div className="main">
-        <Topbar
-          sidebarOpen={sidebarOpen}
-          onMenuClick={() => setSidebarOpen((open) => !open)}
-        />
-        <div className="page">{children}</div>
+    <ScopeProvider>
+      <div className={`app${sidebarOpen ? ' sidebar-open' : ''}`}>
+        <Sidebar onNavigate={closeIfOverlay} />
+        <div className="main">
+          <Topbar
+            sidebarOpen={sidebarOpen}
+            onMenuClick={() => setSidebarOpen((open) => !open)}
+          />
+          <div className="page">{children}</div>
+        </div>
+        {sidebarOpen ? (
+          <button
+            type="button"
+            className="scrim"
+            aria-label="Close navigation"
+            onClick={() => setSidebarOpen(false)}
+            style={{ border: 0, padding: 0, cursor: 'pointer' }}
+          />
+        ) : null}
       </div>
-      {sidebarOpen ? (
-        <button
-          type="button"
-          className="scrim"
-          aria-label="Close navigation"
-          onClick={() => setSidebarOpen(false)}
-          style={{ border: 0, padding: 0, cursor: 'pointer' }}
-        />
-      ) : null}
-    </div>
+    </ScopeProvider>
   )
 }
