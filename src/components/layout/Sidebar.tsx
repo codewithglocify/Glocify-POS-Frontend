@@ -4,6 +4,7 @@ import { Link } from '@tanstack/react-router'
 import {
   BrandsIcon,
   HierarchyIcon,
+  PriceListsIcon,
   ProductsIcon,
   StoresIcon,
 } from '#/icons'
@@ -16,6 +17,7 @@ const organisationItems = [
 
 const catalogueItems = [
   { to: '/products' as const, label: 'Products', icon: ProductsIcon },
+  { to: '/price-lists' as const, label: 'Price lists', icon: PriceListsIcon },
 ]
 
 function placeTip(target: HTMLElement) {
@@ -29,7 +31,7 @@ function SideLink({
   icon: Icon,
   onNavigate,
 }: {
-  to: '/hierarchy' | '/brands' | '/stores' | '/products'
+  to: '/hierarchy' | '/brands' | '/stores' | '/products' | '/price-lists'
   label: string
   icon: ComponentType
   onNavigate?: () => void

@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedBrandsRouteImport } from './routes/_authenticated/brands'
 import { Route as AuthenticatedHierarchyRouteImport } from './routes/_authenticated/hierarchy'
+import { Route as AuthenticatedPriceListsRouteImport } from './routes/_authenticated/price-lists'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
@@ -50,6 +51,11 @@ const AuthenticatedBrandsRoute = AuthenticatedBrandsRouteImport.update({
 const AuthenticatedHierarchyRoute = AuthenticatedHierarchyRouteImport.update({
   id: '/hierarchy',
   path: '/hierarchy',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPriceListsRoute = AuthenticatedPriceListsRouteImport.update({
+  id: '/price-lists',
+  path: '/price-lists',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/brands': typeof AuthenticatedBrandsRoute
   '/hierarchy': typeof AuthenticatedHierarchyRoute
+  '/price-lists': typeof AuthenticatedPriceListsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/demo/store': typeof DemoStoreRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/brands': typeof AuthenticatedBrandsRoute
   '/hierarchy': typeof AuthenticatedHierarchyRoute
+  '/price-lists': typeof AuthenticatedPriceListsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/demo/store': typeof DemoStoreRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/brands': typeof AuthenticatedBrandsRoute
   '/_authenticated/hierarchy': typeof AuthenticatedHierarchyRoute
+  '/_authenticated/price-lists': typeof AuthenticatedPriceListsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/demo/store': typeof DemoStoreRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/brands'
     | '/hierarchy'
+    | '/price-lists'
     | '/products'
     | '/stores'
     | '/demo/store'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/brands'
     | '/hierarchy'
+    | '/price-lists'
     | '/products'
     | '/stores'
     | '/demo/store'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/brands'
     | '/_authenticated/hierarchy'
+    | '/_authenticated/price-lists'
     | '/_authenticated/products'
     | '/_authenticated/stores'
     | '/demo/store'
@@ -234,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHierarchyRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/price-lists': {
+      id: '/_authenticated/price-lists'
+      path: '/price-lists'
+      fullPath: '/price-lists'
+      preLoaderRoute: typeof AuthenticatedPriceListsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/products': {
       id: '/_authenticated/products'
       path: '/products'
@@ -289,6 +308,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedBrandsRoute: typeof AuthenticatedBrandsRoute
   AuthenticatedHierarchyRoute: typeof AuthenticatedHierarchyRoute
+  AuthenticatedPriceListsRoute: typeof AuthenticatedPriceListsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
 }
@@ -296,6 +316,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBrandsRoute: AuthenticatedBrandsRoute,
   AuthenticatedHierarchyRoute: AuthenticatedHierarchyRoute,
+  AuthenticatedPriceListsRoute: AuthenticatedPriceListsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
 }

@@ -57,6 +57,82 @@ export type Store = {
   updatedAt?: string
 }
 
+export type PriceListCountry = {
+  id: string
+  isoCode: string
+  name: string
+  regionId: string
+}
+
+export type PriceListBrand = {
+  id: string
+  code: string
+  name: string
+}
+
+export type PriceListStoreAssignment = {
+  storeId: string
+  priority: number
+}
+
+export type PriceList = {
+  id: string
+  organizationId: string
+  code: string
+  currencyCode: string
+  sourceSystem: string
+  brandId: string | null
+  countryId: string | null
+  concept: string | null
+  country: PriceListCountry | null
+  brand: PriceListBrand | null
+  storePriceLists: Array<PriceListStoreAssignment>
+}
+
+export type PriceListItem = {
+  id: string
+  priceListId: string
+  variantId: string
+  unitPrice: string
+  compareAtPrice: string | null
+  effectiveFrom: string
+  effectiveTo: string | null
+  priceList: {
+    id: string
+    code: string
+    currencyCode: string
+    concept: string | null
+    brandId: string | null
+    countryId: string | null
+    country: {
+      id: string
+      isoCode: string
+      name: string
+      regionId: string
+      priceTaxMode: string
+    } | null
+    brand: PriceListBrand | null
+  }
+  variant: {
+    id: string
+    sku: string
+    product: {
+      id: string
+      sapArticle: string
+      name: string
+    }
+  }
+}
+
+export type CreatePriceListInput = {
+  code: string
+  currencyCode: string
+  sourceSystem: string
+  brandId?: string
+  countryId?: string
+  concept?: string
+}
+
 export type CreateBrandInput = {
   code: string
   name: string

@@ -1,14 +1,9 @@
-import React from 'react';
+import * as React from 'react';
+
 import ThemeToggle from '#/components/ThemeToggle';
+import ScopeBar from '#/components/layout/ScopeBar';
 import UserMenu from '#/components/layout/UserMenu';
 import { BellIcon, MenuIcon, SearchIcon } from '#/icons';
-
-const scopeFields = [
-  { label: 'Region', value: 'All regions' },
-  { label: 'Country', value: 'All countries' },
-  { label: 'Brand', value: 'All brands' },
-  { label: 'Store', value: 'All stores' },
-] as const;
 
 type TopbarProps = {
   onMenuClick?: () => void;
@@ -54,17 +49,7 @@ export default function Topbar({ onMenuClick, sidebarOpen = true }: TopbarProps)
         <MenuIcon />
       </button>
 
-      <div className="scope">
-        <span className="lbl">Scope</span>
-        {scopeFields.map((field, index) => (
-          <span key={field.label} className="scope-field">
-            {index > 0 ? <span className="sep">›</span> : null}
-            <select aria-label={field.label} defaultValue={field.value}>
-              <option value={field.value}>{field.value}</option>
-            </select>
-          </span>
-        ))}
-      </div>
+      <ScopeBar />
 
       <form className="search" role="search" onSubmit={(event) => event.preventDefault()}>
         <SearchIcon />
