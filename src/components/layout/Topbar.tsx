@@ -1,48 +1,46 @@
-import { useEffect, useRef } from 'react'
-
-import ThemeToggle from '#/components/ThemeToggle'
-import UserMenu from '#/components/layout/UserMenu'
-import { BellIcon, MenuIcon, SearchIcon } from '#/icons'
+import React from 'react';
+import ThemeToggle from '#/components/ThemeToggle';
+import UserMenu from '#/components/layout/UserMenu';
+import { BellIcon, MenuIcon, SearchIcon } from '#/icons';
 
 const scopeFields = [
   { label: 'Region', value: 'All regions' },
   { label: 'Country', value: 'All countries' },
   { label: 'Brand', value: 'All brands' },
   { label: 'Store', value: 'All stores' },
-] as const
+] as const;
 
-export default function Topbar({
-  onMenuClick,
-  sidebarOpen = true,
-}: {
-  onMenuClick?: () => void
-  sidebarOpen?: boolean
-}) {
-  const searchRef = useRef<HTMLInputElement>(null)
+type TopbarProps = {
+  onMenuClick?: () => void;
+  sidebarOpen?: boolean;
+};
 
-  useEffect(() => {
+export default function Topbar({ onMenuClick, sidebarOpen = true }: TopbarProps) {
+  const searchRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
-        return
+        return;
       }
 
-      const target = event.target
+      const target = event.target;
       if (
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||
         target instanceof HTMLSelectElement ||
         (target instanceof HTMLElement && target.isContentEditable)
       ) {
-        return
+        return;
       }
 
-      event.preventDefault()
-      searchRef.current?.focus()
+      event.preventDefault();
+      searchRef.current?.focus();
     }
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   return (
     <header className="topbar">
@@ -68,11 +66,7 @@ export default function Topbar({
         ))}
       </div>
 
-      <form
-        className="search"
-        role="search"
-        onSubmit={(event) => event.preventDefault()}
-      >
+      <form className="search" role="search" onSubmit={(event) => event.preventDefault()}>
         <SearchIcon />
         <input
           ref={searchRef}
@@ -93,5 +87,5 @@ export default function Topbar({
         <UserMenu />
       </div>
     </header>
-  )
+  );
 }
